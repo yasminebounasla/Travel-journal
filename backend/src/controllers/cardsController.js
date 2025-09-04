@@ -1,6 +1,74 @@
 import prisma from "../utils/db.js";
 import { cardCreationValidation } from "../utils/cardValidator.js";
 
+
+export const getCards = async (req, res) => {
+    try {
+        /*----------------pagination-----------------------*/
+        const page = Math.max(parseInt(req.query.page) || 1, 1);
+        const limit = Math.max(parseInt(req.query.limit) || 3, 1);
+        const skip = (page - 1) * limit;
+        
+        /*---------search filter----------------*/
+        const search = req.query.search || "";
+        const where = search
+        ? {
+            OR: [
+                { title : { contains : search, mode : "insensitive" }},
+                { country : { contains: search, mode : "insensitive" }},
+                { text :  {contains: search, mode : "insensitive" }}
+            ]
+        } : {};
+        
+        /*-------------sorting----------------*/
+        let orderBy;
+        switch(req.query.sort){
+            case "oldest" :
+                orderBy = {createdAt: "asc"};
+                break;
+            case "title_asc" :
+                orderBy = {title : "asc"};
+                break;
+            case "title_desc":
+                orderBy = {title : "desc"};
+                break;
+            case "newest" :
+            default :
+                orderBy = {createdAt : "desc"};
+                break;
+        }
+       
+        const [cards, total] = await prisma.$transaction([
+            prisma.entry.findMany({where, orderBy, skip, take: limit}),
+            prisma.entry.count({ where }), 
+        ])
+        
+        if (cards.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No Travels found"
+            });
+        }
+        
+        res.status(200).json({
+            success: true,
+            data: cards,
+            pagination : {
+                total,
+                currentPage: page,        
+                limit,
+                totalPages: Math.ceil(total / limit), 
+                hasNext: page < Math.ceil(total / limit), 
+                hasPrev: page > 1,     
+            }
+        });
+    } catch (err) {
+        console.error("Error fetching Travels:", err);
+        res.status(500).json({ error: "Failed to fetch cards" });
+    }
+};
+
+
 // CREATE
 export const createCard = async (req, res) => {
     const { title, country, googleMapsLink, dates, text, imgSrc, imgAlt } = req.body;
@@ -39,28 +107,7 @@ export const createCard = async (req, res) => {
     }
 };
 
-// GET ALL
-export const getCards = async (req, res) => {
-    try {
-        const cards = await prisma.entry.findMany();
 
-        if (cards.length === 0) {
-            return res.status(200).json({
-                success: true,
-                message: "No Travels found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            data: cards
-        });
-
-    } catch (err) {
-        console.error("Error fetching Travels:", err);
-        res.status(500).json({ error: "Failed to fetch cards" });
-    }
-};
 
 // GET ONE
 export const getOneCard = async (req, res) => {
