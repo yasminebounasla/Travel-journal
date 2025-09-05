@@ -6,10 +6,12 @@
 header {
   background-color: #f55a5a;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   color : white;
+  position: relative;
   height : 65px;
+  padding: 0 2rem;
 }
 
 header > img {
@@ -70,35 +72,21 @@ article.journal-entry .marker{
   object-fit: cover;
 }
 
-/*----------------header----------------*/
 
-header {
-  background-color: #f55a5a;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: white;
-  height: 65px;
-  padding: 0 30px;
-  position: relative;
-}
+/*------------------ header-------------------------*/
 
 .header-left {
   display: flex;
   align-items: center;
 }
 
-.header-logo {
-  display: flex;
-  align-items: center;
-}
-
 .header-center {
- position: absolute;
+  position: absolute;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .header-right {
@@ -117,6 +105,7 @@ header h1 {
   font-weight: 600;
 }
 
+/* Search container - FIXED */
 .search-container {
   position: relative;
   display: flex;
@@ -145,6 +134,7 @@ header h1 {
   width: 300px;
 }
 
+/* Search icon - FIXED */
 .search-icon {
   position: absolute;
   left: 10px;
@@ -154,8 +144,10 @@ header h1 {
   height: 16px;
   color: rgba(255, 255, 255, 0.7);
   pointer-events: none;
+  z-index: 2;
 }
 
+/* Clear button - FIXED */
 .clear-search {
   position: absolute;
   right: 10px;
@@ -165,16 +157,21 @@ header h1 {
   border: none;
   color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   font-size: 18px;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
 }
 
 .clear-search:hover {
   color: white;
 }
 
+/* Add button */
 .add-btn {
   background-color: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -200,4 +197,3 @@ header h1 {
   font-size: 16px;
   font-weight: bold;
 }
-
