@@ -52,8 +52,7 @@ export const cardCreationValidation = z.object({
     .trim(),
 
     dates : z
-    .string()
-    .regex(/^\d{2}-\d{2}-\d{4}$/, "Date must be in DD-MM-YYYY format"),
+    .string(),
 
     imgSrc : z
     .string()
