@@ -1,8 +1,7 @@
 import prisma from "../utils/db.js";
 import { cardCreationValidation } from "../utils/cardValidator.js";
 
-
-export const getCards = async (req, res) => {
+export const getAllCards = async (req, res) => {
     try {
         /*----------------pagination-----------------------*/
         const page = Math.max(parseInt(req.query.page) || 1, 1);
@@ -46,7 +45,8 @@ export const getCards = async (req, res) => {
         if (cards.length === 0) {
             return res.status(200).json({
                 success: true,
-                message: "No Travels found"
+                message: "No Travels found",
+                data: []
             });
         }
         
@@ -68,13 +68,12 @@ export const getCards = async (req, res) => {
     }
 };
 
-
 // CREATE
 export const createCard = async (req, res) => {
     const { title, country, googleMapsLink, dates, text, imgSrc, imgAlt } = req.body;
 
     try {
-
+        
         const validatedData = cardCreationValidation.parse(req.body);
         const newCard = await prisma.entry.create({
             data: validatedData
@@ -87,8 +86,7 @@ export const createCard = async (req, res) => {
         });
 
     } catch (err) {
-        
-        if (err.name === 'ZodError') {
+        if (err.name === 'ZodError' && err.errors) {
             return res.status(400).json({
                 success: false,
                 message: "Validation failed",
@@ -99,15 +97,22 @@ export const createCard = async (req, res) => {
             });
         }
 
-        console.error("Error creating Travel card:", err);
+    
+        if (err.code) {
+            return res.status(400).json({
+                success: false,
+                message: "Database error",
+                error: err.message
+            });
+        }
+
         res.status(500).json({ 
             success: false,
-            error: "Failed to create the card" 
+            error: "Failed to create the card",
+            message: err.message
         });
     }
 };
-
-
 
 // GET ONE
 export const getOneCard = async (req, res) => {
@@ -142,7 +147,6 @@ export const updateCard = async (req, res) => {
     const { title, country, googleMapsLink, dates, text, imgSrc, imgAlt } = req.body;
 
     try {
-
         const validatedData = cardCreationValidation.parse(req.body);
         const updated = await prisma.entry.update({
             where: { id },
@@ -155,8 +159,7 @@ export const updateCard = async (req, res) => {
         });
 
     } catch (err) {
-    
-        if (err.name === 'ZodError') {
+        if (err.name === 'ZodError' && err.errors) {
             return res.status(400).json({
                 success: false,
                 message: "Validation failed",
@@ -167,10 +170,17 @@ export const updateCard = async (req, res) => {
             });
         }
 
-        console.error("Error updating the Travel:", err);
+        if (err.code === 'P2025') {
+            return res.status(404).json({
+                success: false,
+                message: "Travel not found"
+            });
+        }
+
         res.status(500).json({ 
             success: false,
-            error: "Failed to update the Travel" 
+            error: "Failed to update the Travel",
+            message: err.message
         });
     }
 };
