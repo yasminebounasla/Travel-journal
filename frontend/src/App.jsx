@@ -1,29 +1,149 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "./components/Header";
 import Entry from "./components/Entry";
-import data from "./data.js";
 import { EntryForm } from "./components/entryForm.jsx";
+import { getAllCards, createCard, updateCard, deleteCard } from "./services/api.js"
 
 export default function App() {
+  // State management
   const [create, setCreate] = useState(false);
+  const [editingEntry, setEditingEntry] = useState(null);
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Load data on component mount
+  useEffect(() => {
+    loadEntries();
+  }, []);
+
+
+  const loadEntries = async () => {
+  try {
+    setLoading(true);
+    const response = await getAllCards();
+    setEntries(response.data); 
+    setError(null);
+
+  } catch (err) {
+    setError(err.message);
+    console.error("Failed to load entries:", err);
+    
+  } finally {
+    setLoading(false);
+  }
+};
+
   
   // Handler functions
   const handleCreateClick = () => {
     setCreate(true);
   };
   
-  const handleFormSubmit = (formData) => {
-    setCreate(false); 
+  const handleFormSubmit = async (formData) => {
+    try {
+      setLoading(true);
+      
+      if (editingEntry) {
+        await updateCard(editingEntry.id, formData);
+        setEditingEntry(null);
+      } else {
+        
+        await createCard(formData);
+        setCreate(false);
+      }
+      
+      
+      await loadEntries();
+      
+    } catch (err) {
+      setError(err.message);
+      console.error("Failed to save entry:", err);
+    } finally {
+      setLoading(false);
+    }
   };
   
   const handleFormCancel = () => {
     setCreate(false);
+    setEditingEntry(null);
   };
   
-  const entryElements = data.map((entry) => {
+  const handleEdit = (entryId) => {
+    const entryToEdit = entries.find(entry => entry.id === entryId);
+    if (entryToEdit) {
+      setEditingEntry({
+        ...entryToEdit,
+        imgSrc: entryToEdit.img?.src || entryToEdit.imgSrc || "",
+        imgAlt: entryToEdit.img?.alt || entryToEdit.imgAlt || ""
+      });
+    }
+  };
+  
+  const handleDelete = async (entryId) => {
+    if (window.confirm("Are you sure you want to delete this entry?")) {
+      try {
+        setLoading(true);
+        await deleteCard(entryId);
+        await loadEntries();
+      } catch (err) {
+        setError(err.message);
+        console.error("Failed to delete entry:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+  
+  // Loading state
+  if (loading && entries.length === 0) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px',
+        color: '#666'
+      }}>
+        Loading travels...
+      </div>
+    );
+  }
+  
+  // Error state
+  if (error && entries.length === 0) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px',
+        color: '#f55a5a'
+      }}>
+        <p>Error: {error}</p>
+        <button onClick={loadEntries} style={{
+          padding: '10px 20px',
+          backgroundColor: '#f55a5a',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer'
+        }}>
+          Try Again
+        </button>
+      </div>
+    );
+  }
+  
+  const entryElements = entries.map((entry) => {
     return <Entry
       key={entry.id}
       {...entry}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
     />
   });
   
@@ -40,14 +160,48 @@ export default function App() {
             dates: "", 
             imgSrc: "", 
             imgAlt: ""
-          }} 
+          }}
           onSubmit={handleFormSubmit}
           onCancel={handleFormCancel}
+          loading={loading}
         />
       )}
+      
+      {editingEntry && (
+        <EntryForm
+          mode="edit"
+          initialData={editingEntry}
+          onSubmit={handleFormSubmit}
+          onCancel={handleFormCancel}
+          loading={loading}
+        />
+      )}
+      
       <Header onCreateClick={handleCreateClick} />
+      
+      {error && (
+        <div style={{
+          backgroundColor: '#fee2e2',
+          color: '#dc2626',
+          padding: '12px',
+          margin: '20px',
+          borderRadius: '6px',
+          textAlign: 'center'
+        }}>
+          {error}
+        </div>
+      )}
+      
       <main className="container">
-        {entryElements}
+        {entryElements.length > 0 ? entryElements : (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px', 
+            color: '#666' 
+          }}>
+            No travel entries yet. Create your first one!
+          </div>
+        )}
       </main>
     </>
   );
