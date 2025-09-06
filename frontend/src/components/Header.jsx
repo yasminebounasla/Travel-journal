@@ -1,4 +1,4 @@
-export default function Header() {
+export default function Header({ onCreateClick }) {
     return (
         <>
             <header>
@@ -41,7 +41,10 @@ export default function Header() {
                     </div>                    
                 </div>
                 <div className='header-right'>
-                    <button className="add-btn">
+                    <button
+                       className="add-btn"
+                       onClick={onCreateClick} 
+                    >
                         <span className="plus-icon">+</span>
                         New
                    </button>
