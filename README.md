@@ -1,9 +1,8 @@
 # Travel-journal
 
-![Uploading image.png…]()
-
-
 > Travel-journal is a simple web application that allows users to document their travels. Users can create, read, update, and delete journal entries, making it easy to keep track of trips, memories, and experiences. It also includes search and filter functionalities for easy access to past entries.
+
+![Travel-journal Screenshot](frontend/src/assets/image.png)
 
 ## Table of Contents
 
