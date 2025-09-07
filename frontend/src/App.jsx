@@ -15,6 +15,9 @@ export default function App() {
   const [entryToDelete, setEntryToDelete] = useState(null); 
   
   
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  
   useEffect(() => {
     loadEntries();
   }, []);
@@ -22,7 +25,8 @@ export default function App() {
   const loadEntries = async () => {
     try {
       setLoading(true);
-      const response = await getAllCards();
+     
+      const response = await getAllCards(1, 10); 
       setEntries(response.data); 
       setError(null);
     } catch (err) {
@@ -33,7 +37,17 @@ export default function App() {
     }
   };
 
-  // Handler functions
+
+  const handleSearchResults = (results) => {
+    if (results && results.length > 0) {
+      setIsSearching(true);
+      setSearchResults(results);
+    } else {
+      setIsSearching(false);
+      setSearchResults([]);
+    }
+  };
+
   const handleCreateClick = () => {
     setCreate(true);
   };
@@ -66,7 +80,10 @@ export default function App() {
   };
   
   const handleEdit = (entryId) => {
-    const entryToEdit = entries.find(entry => entry.id === entryId);
+    
+    const allEntries = isSearching ? searchResults : entries;
+    const entryToEdit = allEntries.find(entry => entry.id === entryId);
+    
     if (entryToEdit) {
       setEditingEntry({
         ...entryToEdit,
@@ -76,7 +93,6 @@ export default function App() {
     }
   };
 
-  
   const handleDeleteRequest = (entryId) => {
     setEntryToDelete(entryId); 
     setDeleteConfirm(true);   
@@ -90,6 +106,12 @@ export default function App() {
         await loadEntries();
         setDeleteConfirm(false);
         setEntryToDelete(null);
+        
+        
+        if (isSearching) {
+          setIsSearching(false);
+          setSearchResults([]);
+        }
 
       } catch (err) {
         setError(err.message);
@@ -106,7 +128,6 @@ export default function App() {
     setEntryToDelete(null);
   };
   
-  
   if (loading && entries.length === 0) {
     return (
       <div style={{ 
@@ -121,7 +142,6 @@ export default function App() {
       </div>
     );
   }
-  
   
   if (error && entries.length === 0) {
     return (
@@ -149,7 +169,10 @@ export default function App() {
     );
   }
   
-  const entryElements = entries.map((entry) => {
+  
+  const displayEntries = isSearching ? searchResults : entries;
+  
+  const entryElements = displayEntries.map((entry) => {
     return <Entry
       key={entry.id}
       {...entry}
@@ -218,7 +241,14 @@ export default function App() {
         </div>
       )}
       
-      <Header onCreateClick={handleCreateClick} />
+      <Header 
+        onCreateClick={handleCreateClick} 
+        onSearchResults={handleSearchResults}
+        onClearSearch={() => {
+          setIsSearching(false);
+          setSearchResults([]);
+        }}
+      />
       
       {error && (
         <div style={{
@@ -234,13 +264,14 @@ export default function App() {
       )}
       
       <main className="container">
+        
         {entryElements.length > 0 ? entryElements : (
           <div style={{ 
             textAlign: 'center', 
             padding: '40px', 
             color: '#666' 
           }}>
-            No travel entries yet. Create your first one!
+            {isSearching ? 'No travels found matching your search.' : 'No travel entries yet. Create your first one!'}
           </div>
         )}
       </main>

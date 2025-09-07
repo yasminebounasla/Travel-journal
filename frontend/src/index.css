@@ -105,7 +105,7 @@ header h1 {
   font-weight: 600;
 }
 
-
+/* IMPROVED SEARCH STYLES */
 .search-container {
   position: relative;
   display: flex;
@@ -122,7 +122,7 @@ header h1 {
   width: 250px;
   outline: none;
   backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease; /* Reduced from 0.3s to 0.2s for snappier response */
 }
 
 .search-input::placeholder {
@@ -134,7 +134,6 @@ header h1 {
   width: 300px;
 }
 
-/* Search icon - FIXED */
 .search-icon {
   position: absolute;
   left: 10px;
@@ -147,28 +146,49 @@ header h1 {
   z-index: 2;
 }
 
-/* Clear button - FIXED */
+/* IMPROVED CLEAR BUTTON - More aggressive positioning and interaction */
 .clear-search {
   position: absolute;
-  right: 10px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
+  background: rgba(255, 255, 255, 0.1);
   border: none;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
-  width: 20px;
-  height: 20px;
-  font-size: 18px;
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2;
+  z-index: 15; /* Higher z-index to ensure it's always clickable */
+  border-radius: 50%;
+  transition: all 0.1s ease; /* Faster transition */
+  font-weight: bold;
 }
 
 .clear-search:hover {
   color: white;
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* Ensure clear button is always clickable and responsive */
+.clear-search:active {
+  transform: translateY(-50%) scale(0.9);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Prevent any pointer events conflicts */
+.clear-search:focus {
+  outline: none;
+}
+
+/* Optional: Add a subtle animation for when search results are loading */
+.search-input.loading {
+  background-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Add button */
@@ -196,6 +216,24 @@ header h1 {
 .plus-icon {
   font-size: 16px;
   font-weight: bold;
+}
+
+/* SEARCH RESULTS INDICATOR */
+.search-results-indicator {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 20px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.search-results-indicator.has-results {
+  background-color: #e3f2fd;
+  border-color: #2196f3;
+  color: #1976d2;
 }
 
 /*-------form-----------*/
@@ -392,32 +430,6 @@ header h1 {
   }
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .form-bg {
-    padding: 10px;
-  }
-  
-  .form-container {
-    max-height: 95vh;
-  }
-  
-  .form-header {
-    padding: 16px 20px;
-  }
-  
-  .form-content {
-    padding: 20px;
-  }
-  
-  .form-buttons {
-    flex-direction: column;
-  }
-}
-
-
-
-
 /* Entry component button styles */
 .edit-btn,
 .delete-btn {
@@ -446,7 +458,7 @@ header h1 {
 }
 
 .delete-btn:hover {
-  color: e04545;
+  color: #e04545;
   background-color: rgba(220, 38, 38, 0.1);
 }
 
@@ -580,8 +592,44 @@ header h1 {
   cursor: not-allowed;
 }
 
-/* Responsive Design */
-@media (max-width: 480px) {
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .form-bg {
+    padding: 10px;
+  }
+  
+  .form-container {
+    max-height: 95vh;
+  }
+  
+  .form-header {
+    padding: 16px 20px;
+  }
+  
+  .form-content {
+    padding: 20px;
+  }
+  
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  /* Search responsive */
+  .search-input {
+    width: 200px;
+  }
+  
+  .search-input:focus {
+    width: 240px;
+  }
+  
+  .header-center {
+    position: relative;
+    left: auto;
+    transform: none;
+  }
+
+  /* Delete confirmation responsive */
   .delete-confirmation-overlay {
     padding: 10px;
   }
@@ -599,5 +647,30 @@ header h1 {
   .delete-confirmation-buttons {
     padding-left: 20px;
     padding-right: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Search mobile responsive */
+  .search-input {
+    width: 150px;
+    font-size: 12px;
+  }
+  
+  .search-input:focus {
+    width: 180px;
+  }
+
+  .header {
+    padding: 0 1rem;
+  }
+
+  .header-right {
+    gap: 10px;
+  }
+
+  .add-btn {
+    padding: 6px 12px;
+    font-size: 12px;
   }
 }
