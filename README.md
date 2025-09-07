@@ -9,8 +9,6 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Contributing](#contributing)
-- [License](#license)
-- [Contact Information](#contact-information)
 
 ## Installation
 
